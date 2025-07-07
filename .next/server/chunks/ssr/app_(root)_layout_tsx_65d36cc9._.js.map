@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/tannu/Desktop/Project/interview_prep/app/%28root%29/layout.tsx"],"sourcesContent":["import { ReactNode } from 'react'\n\nconst RootLayout = ({children} : {children:ReactNode}) => {\n  return (\n    <div>\n      {children}\n    </div>\n  )\n}\n\nexport default RootLayout;"],"names":[],"mappings":";;;;;AAEA,MAAM,aAAa,CAAC,EAAC,QAAQ,EAAwB;IACnD,qBACE,8OAAC;kBACE;;;;;;AAGP;uCAEe","debugId":null}}]
+}
