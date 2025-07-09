@@ -124,6 +124,7 @@
   :root, :host {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --color-green-800: oklch(44.8% .119 151.328);
     --color-blue-200: oklch(88.2% .059 254.128);
     --color-blue-500: oklch(62.3% .214 259.815);
     --color-blue-600: oklch(54.6% .245 262.881);
@@ -701,11 +702,7 @@
 
   .call-view .avatar {
     z-index: 10;
-    --tw-gradient-position: to left in oklab;
-    background-image: linear-gradient(var(--tw-gradient-stops));
-    --tw-gradient-from: #fff;
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-    --tw-gradient-to: #cac5fe;
+    background-color: #0000;
     border-radius: 3.40282e38px;
     justify-content: center;
     align-items: center;
@@ -719,7 +716,7 @@
     width: 83.3333%;
     height: 83.3333%;
     animation: var(--animate-ping);
-    background-color: var(--color-primary-200);
+    background-color: var(--color-green-800);
     opacity: .75;
     border-radius: 3.40282e38px;
     display: inline-flex;
@@ -1053,6 +1050,10 @@
     display: grid;
   }
 
+  .hidden {
+    display: none;
+  }
+
   .inline-flex {
     display: inline-flex;
   }
@@ -1070,6 +1071,11 @@
   .size-\[85px\] {
     width: 85px;
     height: 85px;
+  }
+
+  .size-\[120px\] {
+    width: 120px;
+    height: 120px;
   }
 
   .h-8 {
@@ -1131,6 +1137,14 @@
 
   .transform {
     transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );
+  }
+
+  .animate-fadeIn {
+    animation: .3s ease-in-out fadeIn;
+  }
+
+  .animate-ping {
+    animation: var(--animate-ping);
   }
 
   .animate-pulse {
@@ -1652,6 +1666,18 @@
     opacity: 0;
   }
 
+  .opacity-75 {
+    opacity: .75;
+  }
+
+  .opacity-100 {
+    opacity: 1;
+  }
+
+  .opacity-1000 {
+    opacity: 10;
+  }
+
   .shadow-2xl {
     --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, #00000040);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -1696,6 +1722,12 @@
 
   .transition-all {
     transition-property: all;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  .transition-opacity {
+    transition-property: opacity;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
