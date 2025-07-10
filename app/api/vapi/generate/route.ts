@@ -1,27 +1,19 @@
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
-import { getRandomInterviewCover } from "@/lib/utils";
+
 import { db } from "@/firebase/admin";
+import { getRandomInterviewCover } from "@/lib/utils";
+
 export async function POST(request: Request) {
-  const {
-    type,
-    role,
-    level,
-    techstack = "",
-    amount,
-    userid,
-  } = await request.json();
+  const { type, role, level, techstack, amount, userid } = await request.json();
 
   try {
-    // Create a safe version of techstack that won't cause errors
-    const techstackArray = techstack ? techstack.split(",") : [];
-
     const { text: questions } = await generateText({
-      model: google("gemini-2.5-pro"),
+      model: google("gemini-2.0-flash-001"),
       prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack || "Not specified"}.
+        The tech stack used in the job is: ${techstack}.
         The focus between behavioural and technical questions should lean towards: ${type}.
         The amount of questions required is: ${amount}.
         Please return only the questions, without any additional text.
@@ -34,9 +26,10 @@ export async function POST(request: Request) {
     });
 
     const interview = {
-      role: role || "Not specified",
-      level: level || "Not specified",
-      techstack: techstackArray,
+      role: role,
+      type: type,
+      level: level,
+      techstack: techstack.split(","),
       questions: JSON.parse(questions),
       userId: userid,
       finalized: true,
@@ -46,25 +39,13 @@ export async function POST(request: Request) {
 
     await db.collection("interviews").add(interview);
 
-    return Response.json(
-      {
-        success: true,
-        data: "Thank You!",
-      },
-      {
-        status: 200,
-      }
-    );
+    return Response.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error("Error in POST request:", error);
-    return Response.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : String(error),
-      },
-      {
-        status: 500,
-      }
-    );
+    console.error("Error:", error);
+    return Response.json({ success: false, error: error }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return Response.json({ success: true, data: "Thank you!" }, { status: 200 });
 }

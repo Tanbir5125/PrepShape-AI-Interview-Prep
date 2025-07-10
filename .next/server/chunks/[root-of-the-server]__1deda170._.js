@@ -334,7 +334,6 @@ __turbopack_async_result__();
 var { g: global, __dirname, a: __turbopack_async_module__ } = __turbopack_context__;
 __turbopack_async_module__(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
 __turbopack_context__.s({
-    "GET": (()=>GET),
     "POST": (()=>POST)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ai$2f$dist$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/ai/dist/index.mjs [app-route] (ecmascript) <locals>");
@@ -349,23 +348,17 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 ;
-async function GET() {
-    return Response.json({
-        success: true,
-        data: "Thank You!"
-    }, {
-        status: 200
-    });
-}
 async function POST(request) {
-    const { type, role, level, techstack, amount, userid } = await request.json();
+    const { type, role, level, techstack = "", amount, userid } = await request.json();
     try {
+        // Create a safe version of techstack that won't cause errors
+        const techstackArray = techstack ? techstack.split(",") : [];
         const { text: questions } = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ai$2f$dist$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["generateText"])({
             model: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$ai$2d$sdk$2f$google$2f$dist$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["google"])("gemini-2.5-pro"),
             prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack}.
+        The tech stack used in the job is: ${techstack || "Not specified"}.
         The focus between behavioural and technical questions should lean towards: ${type}.
         The amount of questions required is: ${amount}.
         Please return only the questions, without any additional text.
@@ -377,9 +370,9 @@ async function POST(request) {
     `
         });
         const interview = {
-            role,
-            level,
-            techstack: techstack.split(","),
+            role: role || "Not specified",
+            level: level || "Not specified",
+            techstack: techstackArray,
             questions: JSON.parse(questions),
             userId: userid,
             finalized: true,
@@ -397,7 +390,7 @@ async function POST(request) {
         console.error("Error in POST request:", error);
         return Response.json({
             success: false,
-            error
+            error: error instanceof Error ? error.message : String(error)
         }, {
             status: 500
         });
