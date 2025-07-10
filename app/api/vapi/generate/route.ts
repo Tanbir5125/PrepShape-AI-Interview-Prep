@@ -2,28 +2,26 @@ import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 import { getRandomInterviewCover } from "@/lib/utils";
 import { db } from "@/firebase/admin";
-export async function GET() {
-  return Response.json(
-    {
-      success: true,
-      data: "Thank You!",
-    },
-    {
-      status: 200,
-    }
-  );
-}
-
 export async function POST(request: Request) {
-  const { type, role, level, techstack, amount, userid } = await request.json();
+  const {
+    type,
+    role,
+    level,
+    techstack = "",
+    amount,
+    userid,
+  } = await request.json();
 
   try {
+    // Create a safe version of techstack that won't cause errors
+    const techstackArray = techstack ? techstack.split(",") : [];
+
     const { text: questions } = await generateText({
       model: google("gemini-2.5-pro"),
       prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack}.
+        The tech stack used in the job is: ${techstack || "Not specified"}.
         The focus between behavioural and technical questions should lean towards: ${type}.
         The amount of questions required is: ${amount}.
         Please return only the questions, without any additional text.
@@ -36,32 +34,33 @@ export async function POST(request: Request) {
     });
 
     const interview = {
-        role,level,
-        techstack:techstack.split(","),
-        questions: JSON.parse(questions),
-        userId: userid,
-        finalized: true,
-        coverImage: getRandomInterviewCover(),
-        createdAt: new Date().toISOString(),
-    }
+      role: role || "Not specified",
+      level: level || "Not specified",
+      techstack: techstackArray,
+      questions: JSON.parse(questions),
+      userId: userid,
+      finalized: true,
+      coverImage: getRandomInterviewCover(),
+      createdAt: new Date().toISOString(),
+    };
 
     await db.collection("interviews").add(interview);
 
     return Response.json(
       {
         success: true,
+        data: "Thank You!",
       },
       {
         status: 200,
       }
     );
-
   } catch (error) {
     console.error("Error in POST request:", error);
     return Response.json(
       {
         success: false,
-        error,
+        error: error instanceof Error ? error.message : String(error),
       },
       {
         status: 500,
