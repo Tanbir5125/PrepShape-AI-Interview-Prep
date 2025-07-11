@@ -75,8 +75,10 @@ __turbopack_async_result__();
 
 var { g: global, __dirname, a: __turbopack_async_module__ } = __turbopack_context__;
 __turbopack_async_module__(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
-/* __next_internal_action_entry_do_not_use__ [{"00e5193c9812e99759958790c45ee6f61eb7d05b33":"isAuthenticated","00ec3397cc99979a5b2021388f2d3ae71194acec07":"getCurrentUser","4026c0f2e815bcae57c7bee9f892490234345f2ec7":"signIn","4093a3a96af9dd417d37d7ddcdf26fd8ad157cc0b4":"signUp","4099e18b0b46f8d6bdfe1ac33cac768728d87e113c":"setSessionCookie"},"",""] */ __turbopack_context__.s({
+/* __next_internal_action_entry_do_not_use__ [{"00e5193c9812e99759958790c45ee6f61eb7d05b33":"isAuthenticated","00ec3397cc99979a5b2021388f2d3ae71194acec07":"getCurrentUser","4026c0f2e815bcae57c7bee9f892490234345f2ec7":"signIn","4093a3a96af9dd417d37d7ddcdf26fd8ad157cc0b4":"signUp","4099e18b0b46f8d6bdfe1ac33cac768728d87e113c":"setSessionCookie","40a9f008b3ea94c8953b890c77e7e9fc4f87df4829":"getInterviewsByUserID","40adc1f88a79696b4943fed1424b6b1644759ac55f":"getLatestInterviews"},"",""] */ __turbopack_context__.s({
     "getCurrentUser": (()=>getCurrentUser),
+    "getInterviewsByUserID": (()=>getInterviewsByUserID),
+    "getLatestInterviews": (()=>getLatestInterviews),
     "isAuthenticated": (()=>isAuthenticated),
     "setSessionCookie": (()=>setSessionCookie),
     "signIn": (()=>signIn),
@@ -95,8 +97,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 ;
-const ONE_WEEK = 60 * 60 * 24 * 7 // 7 days
-;
+const ONE_WEEK = 60 * 60 * 24 * 7; // 7 days
 async function signUp(params) {
     const { uid, name, email } = params;
     try {
@@ -153,32 +154,30 @@ async function setSessionCookie(idToken) {
     const sessionCookie = await __TURBOPACK__imported__module__$5b$project$5d2f$firebase$2f$admin$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].createSessionCookie(idToken, {
         expiresIn: ONE_WEEK * 1000
     });
-    cookieStore.set('session', sessionCookie, {
+    cookieStore.set("session", sessionCookie, {
         maxAge: ONE_WEEK,
         httpOnly: true,
-        secure: ("TURBOPACK compile-time value", "development") === 'production',
-        path: '/',
-        sameSite: 'lax'
+        secure: ("TURBOPACK compile-time value", "development") === "production",
+        path: "/",
+        sameSite: "lax"
     });
 }
 async function getCurrentUser() {
     const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cookies"])();
-    const sessionCookie = cookieStore.get('session')?.value;
-    if (!sessionCookie) {
-        return null;
-    }
+    const sessionCookie = cookieStore.get("session")?.value;
+    if (!sessionCookie) return null;
     try {
         const decodedClaims = await __TURBOPACK__imported__module__$5b$project$5d2f$firebase$2f$admin$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["auth"].verifySessionCookie(sessionCookie, true);
+        // get user info from db
         const userRecord = await __TURBOPACK__imported__module__$5b$project$5d2f$firebase$2f$admin$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].collection("users").doc(decodedClaims.uid).get();
-        if (!userRecord.exists) {
-            return null;
-        }
+        if (!userRecord.exists) return null;
         return {
             ...userRecord.data(),
-            id: decodedClaims.id
+            id: userRecord.id
         };
     } catch (error) {
-        console.error("Error getting current user:", error);
+        console.log(error);
+        // Invalid or expired session
         return null;
     }
 }
@@ -186,19 +185,38 @@ async function isAuthenticated() {
     const user = await getCurrentUser();
     return !!user;
 }
+async function getInterviewsByUserID(userId) {
+    const interviews = await __TURBOPACK__imported__module__$5b$project$5d2f$firebase$2f$admin$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].collection("interviews").where("userId", "==", userId).orderBy("createdAt", "desc").get();
+    return interviews.docs.map((doc)=>({
+            id: doc.id,
+            ...doc.data()
+        }));
+}
+async function getLatestInterviews(params) {
+    const { userId, limit = 20 } = params;
+    const interviews = await __TURBOPACK__imported__module__$5b$project$5d2f$firebase$2f$admin$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["db"].collection("interviews").orderBy("createdAt", "desc").where("finalized", "==", true).where("userId", "!=", userId).limit(limit).get();
+    return interviews.docs.map((doc)=>({
+            id: doc.id,
+            ...doc.data()
+        }));
+}
 ;
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ensureServerEntryExports"])([
     signUp,
     signIn,
     setSessionCookie,
     getCurrentUser,
-    isAuthenticated
+    isAuthenticated,
+    getInterviewsByUserID,
+    getLatestInterviews
 ]);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(signUp, "4093a3a96af9dd417d37d7ddcdf26fd8ad157cc0b4", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(signIn, "4026c0f2e815bcae57c7bee9f892490234345f2ec7", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(setSessionCookie, "4099e18b0b46f8d6bdfe1ac33cac768728d87e113c", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getCurrentUser, "00ec3397cc99979a5b2021388f2d3ae71194acec07", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(isAuthenticated, "00e5193c9812e99759958790c45ee6f61eb7d05b33", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getInterviewsByUserID, "40a9f008b3ea94c8953b890c77e7e9fc4f87df4829", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getLatestInterviews, "40adc1f88a79696b4943fed1424b6b1644759ac55f", null);
 __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
 "[project]/app/(root)/layout.tsx [app-rsc] (ecmascript)": ((__turbopack_context__) => {

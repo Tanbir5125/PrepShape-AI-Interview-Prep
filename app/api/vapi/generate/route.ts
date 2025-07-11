@@ -8,12 +8,33 @@ export async function POST(request: Request) {
   const { type, role, level, techstack, amount, userid } = await request.json();
 
   try {
+    // Validate required parameters
+    if (!type || !role || !level || !userid || !amount) {
+      return Response.json(
+        { success: false, error: "Missing required parameters" },
+        { status: 400 }
+      );
+    }
+
+    // Handle techstack properly - if it's undefined or not a string, use an empty array
+    const techstackArray =
+      typeof techstack === "string"
+        ? techstack.split(",")
+        : Array.isArray(techstack)
+        ? techstack
+        : [];
+
+    const techstackPrompt =
+      techstackArray.length > 0
+        ? techstackArray.join(", ")
+        : "No specific technologies";
+
     const { text: questions } = await generateText({
       model: google("gemini-2.0-flash-001"),
       prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack}.
+        The tech stack used in the job is: ${techstackPrompt}.
         The focus between behavioural and technical questions should lean towards: ${type}.
         The amount of questions required is: ${amount}.
         Please return only the questions, without any additional text.
@@ -29,7 +50,7 @@ export async function POST(request: Request) {
       role: role,
       type: type,
       level: level,
-      techstack: techstack.split(","),
+      techstack: techstackArray,
       questions: JSON.parse(questions),
       userId: userid,
       finalized: true,
@@ -42,7 +63,10 @@ export async function POST(request: Request) {
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Error:", error);
-    return Response.json({ success: false, error: error }, { status: 500 });
+    return Response.json(
+      { success: false, error: error.message || String(error) },
+      { status: 500 }
+    );
   }
 }
 
