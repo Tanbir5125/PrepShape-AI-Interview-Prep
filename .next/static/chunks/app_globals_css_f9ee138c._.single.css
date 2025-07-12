@@ -1018,6 +1018,11 @@
     height: calc(var(--spacing) * 9);
   }
 
+  .size-\[40px\] {
+    width: 40px;
+    height: 40px;
+  }
+
   .size-\[85px\] {
     width: 85px;
     height: 85px;
@@ -1038,6 +1043,10 @@
 
   .h-10 {
     height: calc(var(--spacing) * 10);
+  }
+
+  .h-fit {
+    height: fit-content;
   }
 
   .h-full {
@@ -1220,6 +1229,10 @@
 
   .bg-background {
     background-color: var(--background);
+  }
+
+  .bg-dark-200 {
+    background-color: var(--color-dark-200);
   }
 
   .bg-dark-300 {
@@ -2066,6 +2079,12 @@
   @media (width < 40rem) {
     .max-sm\:w-full {
       width: 100%;
+    }
+  }
+
+  @media (width < 40rem) {
+    .max-sm\:flex-col {
+      flex-direction: column;
     }
   }
 

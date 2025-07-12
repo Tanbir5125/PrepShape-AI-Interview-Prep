@@ -54,28 +54,6 @@
       "layer": {
         "app/(auth)/sign-up/page": "rsc"
       }
-    },
-    "40a9f008b3ea94c8953b890c77e7e9fc4f87df4829": {
-      "workers": {
-        "app/(auth)/sign-up/page": {
-          "moduleId": "[project]/.next-internal/server/app/(auth)/sign-up/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions/auth.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": true
-        }
-      },
-      "layer": {
-        "app/(auth)/sign-up/page": "rsc"
-      }
-    },
-    "40adc1f88a79696b4943fed1424b6b1644759ac55f": {
-      "workers": {
-        "app/(auth)/sign-up/page": {
-          "moduleId": "[project]/.next-internal/server/app/(auth)/sign-up/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions/auth.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": true
-        }
-      },
-      "layer": {
-        "app/(auth)/sign-up/page": "rsc"
-      }
     }
   },
   "edge": {}

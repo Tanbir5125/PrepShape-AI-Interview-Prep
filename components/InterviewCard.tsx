@@ -6,7 +6,7 @@ import Link from "next/link";
 import DisplayTechIcons from "./DisplayTechIcons";
 
 const InterviewCard = ({
-  interviewId,
+  id,
   userId,
   role,
   type,
@@ -89,8 +89,8 @@ const InterviewCard = ({
             <Link
               href={
                 feedback
-                  ? `/interview/${interviewId}/feedback`
-                  : `/interview/${interviewId}`
+                  ? `/interview/${id}/feedback`
+                  : `/interview/${id}`
               }
               className="relative w-full h-full flex items-center justify-center text-center font-semibold text-black transition-all duration-300 group-hover/btn:text-white group-hover/btn:drop-shadow-lg"
             >
