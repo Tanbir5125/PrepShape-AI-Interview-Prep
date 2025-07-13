@@ -154,6 +154,8 @@
     --text-2xl--line-height: calc(2 / 1.5);
     --text-3xl: 1.875rem;
     --text-3xl--line-height: calc(2.25 / 1.875);
+    --text-4xl: 2.25rem;
+    --text-4xl--line-height: calc(2.5 / 2.25);
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
@@ -179,6 +181,9 @@
     --color-primary-100: #dddfff;
     --color-primary-200: #cac5fe;
     --color-light-100: #d6e0ff;
+    --color-light-400: #6870a6;
+    --color-light-600: #4f557d;
+    --color-light-800: #24273a;
     --color-dark-100: #020408;
     --color-dark-200: #27282f;
     --color-dark-300: #242633;
@@ -1001,8 +1006,16 @@
     margin-top: calc(var(--spacing) * 2);
   }
 
+  .mt-3 {
+    margin-top: calc(var(--spacing) * 3);
+  }
+
   .mt-4 {
     margin-top: calc(var(--spacing) * 4);
+  }
+
+  .mt-5 {
+    margin-top: calc(var(--spacing) * 5);
   }
 
   .mt-8 {
@@ -1078,6 +1091,11 @@
     height: 85px;
   }
 
+  .size-\[90px\] {
+    width: 90px;
+    height: 90px;
+  }
+
   .size-\[120px\] {
     width: 120px;
     height: 120px;
@@ -1133,6 +1151,10 @@
 
   .min-w-0 {
     min-width: calc(var(--spacing) * 0);
+  }
+
+  .flex-1 {
+    flex: 1;
   }
 
   .flex-shrink-0, .shrink-0 {
@@ -1192,8 +1214,16 @@
     gap: calc(var(--spacing) * 2);
   }
 
+  .gap-3 {
+    gap: calc(var(--spacing) * 3);
+  }
+
   .gap-4 {
     gap: calc(var(--spacing) * 4);
+  }
+
+  .gap-5 {
+    gap: calc(var(--spacing) * 5);
   }
 
   .gap-6 {
@@ -1291,6 +1321,18 @@
 
   .bg-destructive {
     background-color: var(--destructive);
+  }
+
+  .bg-light-400 {
+    background-color: var(--color-light-400);
+  }
+
+  .bg-light-600 {
+    background-color: var(--color-light-600);
+  }
+
+  .bg-light-800 {
+    background-color: var(--color-light-800);
   }
 
   .bg-primary {
@@ -1551,6 +1593,11 @@
     text-align: center;
   }
 
+  .text-4xl {
+    font-size: var(--text-4xl);
+    line-height: var(--tw-leading, var(--text-4xl--line-height));
+  }
+
   .text-base {
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
@@ -1640,6 +1687,10 @@
 
   .text-primary-100 {
     color: var(--color-primary-100);
+  }
+
+  .text-primary-200 {
+    color: var(--color-primary-200);
   }
 
   .text-primary-foreground {
