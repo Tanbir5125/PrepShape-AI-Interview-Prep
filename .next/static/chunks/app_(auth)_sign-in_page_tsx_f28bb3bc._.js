@@ -7,7 +7,7 @@
   "static/chunks/node_modules_@firebase_auth_dist_esm2017_738c427f._.js",
   "static/chunks/node_modules_@firebase_firestore_dist_index_esm2017_c2fcaa2e.js",
   "static/chunks/node_modules_05cff395._.js",
-  "static/chunks/_87871bd1._.js"
+  "static/chunks/_b072dcd9._.js"
 ],
     source: "dynamic"
 });

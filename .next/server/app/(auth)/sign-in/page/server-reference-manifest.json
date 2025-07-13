@@ -1,5 +1,16 @@
 {
   "node": {
+    "000c2a4c30b963ceee617810100219c6b4bc591d71": {
+      "workers": {
+        "app/(auth)/sign-in/page": {
+          "moduleId": "[project]/.next-internal/server/app/(auth)/sign-in/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions/auth.action.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true
+        }
+      },
+      "layer": {
+        "app/(auth)/sign-in/page": "rsc"
+      }
+    },
     "00e5193c9812e99759958790c45ee6f61eb7d05b33": {
       "workers": {
         "app/(auth)/sign-in/page": {

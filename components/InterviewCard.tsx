@@ -19,16 +19,10 @@ const InterviewCard = async ({
       ? await getFeedbackByInterviewId({ interviewId: id, userId })
       : null;
   const normalizedType = /mix/gi.test(type) ? "Mixed" : type;
-  const badgeColor =
-    {
-      Behavioral: "bg-light-400",
-      Mixed: "bg-light-600",
-      Technical: "bg-light-800",
-    }[normalizedType] || "bg-light-600";
 
-  const formattedDate = dayjs(feedback?.createdAt || Date.now()).format(
-    "MMM D, YYYY"
-  );
+  const formattedDate = dayjs(
+    feedback?.createdAt || createdAt || Date.now()
+  ).format("MMM D, YYYY");
 
   return (
     <div className="relative w-[360px] max-sm:w-full min-h-96 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 group blue-gradient-dark rounded-2xl border border-[#23243a] overflow-hidden">
@@ -81,7 +75,7 @@ const InterviewCard = async ({
         <div className="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10 mb-4">
           <p className="line-clamp-2 text-center text-gray-100 text-[15px] min-h-[40px] leading-relaxed">
             {feedback?.finalAssessment ||
-              "You haven't taken the interview yet. Take it now to improve your skills!"}
+              "You haven't taken thi interview yet. Take it now to improve your skills!"}
           </p>
         </div>
 
