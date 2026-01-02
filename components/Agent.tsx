@@ -211,7 +211,7 @@ const Agent = ({
             }
             lastToastTimeRef.current = now;
           }
-        }, 1000);
+        }, 500);
       }
     } else {
       // Face count is good (exactly 1), clear the timer and warning

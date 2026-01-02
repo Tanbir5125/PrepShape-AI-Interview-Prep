@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 
 interface UseFaceDetectionProps {
-  videoRef: React.RefObject<HTMLVideoElement | null>; // ✅ FIX
+  videoRef: React.RefObject<HTMLVideoElement | null>;
   isActive: boolean;
   onFaceCountChange?: (count: number) => void;
 }
@@ -40,7 +40,7 @@ export const useFaceDetection = ({
       if (
         !isActive ||
         !modelsLoaded ||
-        !videoRef.current || // ✅ SAFE
+        !videoRef.current ||
         !canvasRef.current ||
         videoRef.current.readyState !== 4
       ) {
@@ -68,7 +68,7 @@ export const useFaceDetection = ({
     };
 
     if (isActive && modelsLoaded) {
-      detectionIntervalRef.current = setInterval(detectFaces, 100);
+      detectionIntervalRef.current = setInterval(detectFaces, 20);
     }
 
     return () => {
