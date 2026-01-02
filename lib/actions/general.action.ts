@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { feedbackSchema } from "@/constants";
 import { db } from "@/firebase/admin";
@@ -65,7 +65,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
         finalAssessment,
       },
     } = await generateObject({
-      model: google("gemini-2.5-pro", {
+      model: google("gemini-2.5-flash", {
         structuredOutputs: false,
       }),
       schema: feedbackSchema,
@@ -97,15 +97,15 @@ export async function createFeedback(params: CreateFeedbackParams) {
     });
 
     return {
-        success: true,
-        feedbackId: feedback.id,
-      };
+      success: true,
+      feedbackId: feedback.id,
+    };
   } catch (error) {
     console.error("Error saving feedback", error);
 
     return {
-        success : false
-    }
+      success: false,
+    };
   }
 }
 
@@ -121,12 +121,12 @@ export async function getFeedbackByInterviewId(
     .limit(1)
     .get();
 
-    if(feedback.empty) return null
+  if (feedback.empty) return null;
 
-    const feedbackDoc = feedback.docs[0]
+  const feedbackDoc = feedback.docs[0];
 
   return {
     id: feedbackDoc.id,
-   ...feedbackDoc.data(),
-  } as Feedback
+    ...feedbackDoc.data(),
+  } as Feedback;
 }
