@@ -157,6 +157,15 @@ End the conversation on a polite and positive note.
 
 export const feedbackSchema = z.object({
   totalScore: z.number(),
+
+  plagiarismScore: z
+    .number()
+    .min(0)
+    .max(100)
+    .describe(
+      "Percentage likelihood that answers are plagiarized, scripted, or non-original"
+    ),
+
   categoryScores: z.tuple([
     z.object({
       name: z.literal("Communication Skills"),
@@ -184,10 +193,12 @@ export const feedbackSchema = z.object({
       comment: z.string(),
     }),
   ]),
+
   strengths: z.array(z.string()),
   areasForImprovement: z.array(z.string()),
   finalAssessment: z.string(),
 });
+
 
 export const interviewCovers = [
   "/adobe.png",
@@ -202,29 +213,4 @@ export const interviewCovers = [
   "/telegram.png",
   "/tiktok.png",
   "/yahoo.png",
-];
-
-export const dummyInterviews: Interview[] = [
-  {
-    id: "1",
-    userId: "user1",
-    role: "Frontend Developer",
-    type: "Technical",
-    techstack: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
-    level: "Junior",
-    questions: ["What is React?"],
-    finalized: false,
-    createdAt: "2024-03-15T10:00:00Z",
-  },
-  {
-    id: "2",
-    userId: "user1",
-    role: "Full Stack Developer",
-    type: "Mixed",
-    techstack: ["Node.js", "Express", "MongoDB", "React"],
-    level: "Senior",
-    questions: ["What is Node.js?"],
-    finalized: false,
-    createdAt: "2024-03-14T15:30:00Z",
-  },
 ];

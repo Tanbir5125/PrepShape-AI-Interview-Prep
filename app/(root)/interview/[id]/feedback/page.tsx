@@ -22,6 +22,8 @@ const Feedback = async ({ params }: RouteParams) => {
     userId: user?.id,
   });
 
+ const plagiarismScore = feedback?.plagiarismScore;
+
   return (
     <section className="section-feedback">
       <div className="flex flex-row justify-center">
@@ -42,6 +44,26 @@ const Feedback = async ({ params }: RouteParams) => {
                 {feedback?.totalScore}
               </span>
               /100
+            </p>
+          </div>
+
+          <div className="flex flex-row gap-2 items-center">
+            {/* <Image src="/warning.svg" width={22} height={22} alt="plagiarism" /> */}
+            <p>
+              Plagiarism :{" "}
+              <span
+                className={`font-bold ${
+                  plagiarismScore === undefined
+                    ? "text-gray-400"
+                    : plagiarismScore > 60
+                    ? "text-red-500"
+                    : plagiarismScore > 30
+                    ? "text-yellow-500"
+                    : "text-green-500"
+                }`}
+              >
+                {feedback?.plagiarismScore}%
+              </span>
             </p>
           </div>
 

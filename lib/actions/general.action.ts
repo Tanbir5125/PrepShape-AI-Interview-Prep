@@ -59,6 +59,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
     const {
       object: {
         totalScore,
+        plagiarismScore,
         categoryScores,
         strengths,
         areasForImprovement,
@@ -70,25 +71,57 @@ export async function createFeedback(params: CreateFeedbackParams) {
       }),
       schema: feedbackSchema,
       prompt: `
-        You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories. Be thorough and detailed in your analysis. Don't be lenient with the candidate. If there are mistakes or areas for improvement, point them out.
-        Transcript:
-        ${formattedTranscript}
+You are an AI interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories.
+Be thorough and detailed in your analysis. Don't be lenient with the candidate.
+If there are mistakes or areas for improvement, point them out.
 
-        Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
-        - **Communication Skills**: Clarity, articulation, structured responses.
-        - **Technical Knowledge**: Understanding of key concepts for the role.
-        - **Problem-Solving**: Ability to analyze problems and propose solutions.
-        - **Cultural & Role Fit**: Alignment with company values and job role.
-        - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
-        `,
+Transcript:
+${formattedTranscript}
+
+Please score the candidate from 0 to 100 in the following areas.
+Do NOT add categories other than the ones provided:
+
+- **Communication Skills**: Clarity, articulation, structured responses.
+- **Technical Knowledge**: Understanding of key concepts for the role.
+- **Problem-Solving**: Ability to analyze problems and propose solutions.
+- **Cultural & Role Fit**: Alignment with company values and job role.
+- **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
+
+---
+
+ADDITIONAL TASK: PLAGIARISM & CHEATING ANALYSIS
+
+Analyze the transcript and estimate the likelihood that the candidate:
+- Used memorized or scripted answers
+- Read from notes or another screen
+- Used AI-generated responses
+- Repeated generic textbook explanations
+- Showed unnatural fluency without original reasoning
+
+Plagiarism Score Rules:
+- **0–20%** → Highly original, spontaneous answers
+- **21–40%** → Mildly scripted or rehearsed
+- **41–60%** → Noticeable memorization or AI assistance
+- **61–80%** → Strong indicators of cheating
+- **81–100%** → Almost certainly plagiarized or AI-driven
+
+Return the following structured data ONLY:
+- totalScore (0–100)
+- plagiarismScore (0–100)
+- categoryScores (ONLY the provided categories)
+- strengths
+- areasForImprovement
+- finalAssessment
+      `,
       system:
-        "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
+        "You are a professional interviewer analyzing a mock interview. You are also trained to detect plagiarism, AI-generated answers, and interview cheating.",
     });
 
     const feedback = await db.collection("feedback").add({
       interviewId,
       userId,
       totalScore,
+      plagiarismScore,
       categoryScores,
       strengths,
       areasForImprovement,
@@ -102,10 +135,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
     };
   } catch (error) {
     console.error("Error saving feedback", error);
-
-    return {
-      success: false,
-    };
+    return { success: false };
   }
 }
 

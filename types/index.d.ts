@@ -2,6 +2,7 @@ interface Feedback {
   id: string;
   interviewId: string;
   totalScore: number;
+  plagiarismScore: number;
   categoryScores: Array<{
     name: string;
     score: number;
