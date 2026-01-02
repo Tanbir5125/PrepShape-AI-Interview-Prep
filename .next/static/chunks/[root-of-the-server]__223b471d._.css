@@ -55,6 +55,9 @@
       --tw-translate-x: 0;
       --tw-translate-y: 0;
       --tw-translate-z: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-scale-z: 1;
       --tw-rotate-x: initial;
       --tw-rotate-y: initial;
       --tw-rotate-z: initial;
@@ -113,9 +116,6 @@
       --tw-backdrop-sepia: initial;
       --tw-duration: initial;
       --tw-ease: initial;
-      --tw-scale-x: 1;
-      --tw-scale-y: 1;
-      --tw-scale-z: 1;
     }
   }
 }
@@ -124,6 +124,11 @@
   :root, :host {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --color-red-500: oklch(63.7% .237 25.331);
+    --color-red-600: oklch(57.7% .245 27.325);
+    --color-red-700: oklch(50.5% .213 27.518);
+    --color-yellow-500: oklch(79.5% .184 86.047);
+    --color-green-500: oklch(72.3% .219 149.579);
     --color-green-800: oklch(44.8% .119 151.328);
     --color-blue-200: oklch(88.2% .059 254.128);
     --color-blue-500: oklch(62.3% .214 259.815);
@@ -133,7 +138,9 @@
     --color-purple-600: oklch(55.8% .288 302.321);
     --color-gray-100: oklch(96.7% .003 264.542);
     --color-gray-200: oklch(92.8% .006 264.531);
+    --color-gray-400: oklch(70.7% .022 261.325);
     --color-gray-700: oklch(37.3% .034 259.733);
+    --color-gray-800: oklch(27.8% .033 256.848);
     --color-black: #000;
     --color-white: #fff;
     --spacing: .25rem;
@@ -992,6 +999,10 @@
     right: calc(var(--spacing) * 0);
   }
 
+  .left-0 {
+    left: calc(var(--spacing) * 0);
+  }
+
   .z-10 {
     z-index: 10;
   }
@@ -1085,11 +1096,6 @@
     height: 85px;
   }
 
-  .size-\[120px\] {
-    width: 120px;
-    height: 120px;
-  }
-
   .h-4 {
     height: calc(var(--spacing) * 4);
   }
@@ -1163,6 +1169,11 @@
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
 
+  .scale-x-\[-1\] {
+    --tw-scale-x: -1;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
+
   .transform {
     transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );
   }
@@ -1181,6 +1192,10 @@
 
   .animate-spin {
     animation: var(--animate-spin);
+  }
+
+  .cursor-not-allowed {
+    cursor: not-allowed;
   }
 
   .flex-col {
@@ -1342,8 +1357,16 @@
     background-color: var(--destructive);
   }
 
+  .bg-gray-800 {
+    background-color: var(--color-gray-800);
+  }
+
   .bg-primary {
     background-color: var(--primary);
+  }
+
+  .bg-red-600 {
+    background-color: var(--color-red-600);
   }
 
   .bg-secondary {
@@ -1544,6 +1567,10 @@
     object-fit: cover;
   }
 
+  .\!p-0 {
+    padding: calc(var(--spacing) * 0) !important;
+  }
+
   .p-1 {
     padding: calc(var(--spacing) * 1);
   }
@@ -1586,6 +1613,10 @@
 
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
+  }
+
+  .py-4 {
+    padding-block: calc(var(--spacing) * 4);
   }
 
   .py-14 {
@@ -1688,6 +1719,14 @@
     color: var(--color-gray-200);
   }
 
+  .text-gray-400 {
+    color: var(--color-gray-400);
+  }
+
+  .text-green-500 {
+    color: var(--color-green-500);
+  }
+
   .text-muted-foreground {
     color: var(--muted-foreground);
   }
@@ -1708,6 +1747,10 @@
     color: var(--primary-foreground);
   }
 
+  .text-red-500 {
+    color: var(--color-red-500);
+  }
+
   .text-secondary-foreground {
     color: var(--secondary-foreground);
   }
@@ -1718,6 +1761,10 @@
 
   .text-white {
     color: var(--color-white);
+  }
+
+  .text-yellow-500 {
+    color: var(--color-yellow-500);
   }
 
   .capitalize {
@@ -1739,6 +1786,10 @@
 
   .opacity-0 {
     opacity: 0;
+  }
+
+  .opacity-50 {
+    opacity: .5;
   }
 
   .opacity-75 {
@@ -2045,6 +2096,12 @@
       .hover\:bg-primary\/90:hover {
         background-color: color-mix(in oklab, var(--primary) 90%, transparent);
       }
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-red-700:hover {
+      background-color: var(--color-red-700);
     }
   }
 
@@ -2414,6 +2471,24 @@
   initial-value: 0;
 }
 
+@property --tw-scale-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --tw-scale-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --tw-scale-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+
 @property --tw-rotate-x {
   syntax: "*";
   inherits: false
@@ -2721,24 +2796,6 @@
 @property --tw-ease {
   syntax: "*";
   inherits: false
-}
-
-@property --tw-scale-x {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
-
-@property --tw-scale-y {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
-
-@property --tw-scale-z {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
 }
 
 @keyframes spin {

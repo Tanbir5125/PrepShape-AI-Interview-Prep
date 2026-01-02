@@ -1,13 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
 import { createFeedback } from "@/lib/actions/general.action";
+import CameraView from "@/components/CameraView";
+import CameraButton from "@/components/CameraButton";
+import { toast } from "sonner";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -34,6 +37,13 @@ const Agent = ({
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastMessage, setLastMessage] = useState<string>("");
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [faceCount, setFaceCount] = useState(0);
+  const [showViolationWarning, setShowViolationWarning] = useState(false);
+
+  // Refs for violation timers
+  const violationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastToastTimeRef = useRef<number>(0);
 
   useEffect(() => {
     const onCallStart = () => {
@@ -114,7 +124,21 @@ const Agent = ({
     }
   }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (violationTimerRef.current) {
+        clearTimeout(violationTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleCall = async () => {
+    if (!isCameraActive) {
+      toast.error("Start your camera first to take the interview");
+      return;
+    }
+
     setCallStatus(CallStatus.CONNECTING);
 
     if (type === "generate") {
@@ -122,12 +146,14 @@ const Agent = ({
         undefined,
         undefined,
         undefined,
-        process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: {
-          username: userName,
-          userid: userId,
-        },
-      });
+        process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!,
+        {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        }
+      );
     } else {
       let formattedQuestions = "";
       if (questions) {
@@ -147,10 +173,64 @@ const Agent = ({
   const handleDisconnect = () => {
     setCallStatus(CallStatus.FINISHED);
     vapi.stop();
+
+    // Clear any pending timers
+    if (violationTimerRef.current) {
+      clearTimeout(violationTimerRef.current);
+      violationTimerRef.current = null;
+    }
+  };
+
+  const toggleCamera = () => {
+    setIsCameraActive((prev) => !prev);
+  };
+
+  const handleFaceCountChange = (count: number) => {
+    setFaceCount(count);
+
+    // Only process violations during active call
+    if (callStatus !== CallStatus.ACTIVE) {
+      return;
+    }
+
+    // Check if there's a violation
+    const hasViolation = count > 1 || count === 0;
+
+    if (hasViolation) {
+      // If no timer is running, start one
+      if (!violationTimerRef.current) {
+        violationTimerRef.current = setTimeout(() => {
+          // Only show toast if enough time has passed since last toast (prevent spam)
+          const now = Date.now();
+          if (now - lastToastTimeRef.current > 3000) {
+            if (count > 1) {
+              toast.error(`⚠️ Multiple people detected! (${count} people)`);
+              setShowViolationWarning(true);
+            } else if (count === 0) {
+              toast.warning("⚠️ No face detected in frame");
+            }
+            lastToastTimeRef.current = now;
+          }
+        }, 1000);
+      }
+    } else {
+      // Face count is good (exactly 1), clear the timer and warning
+      if (violationTimerRef.current) {
+        clearTimeout(violationTimerRef.current);
+        violationTimerRef.current = null;
+      }
+      setShowViolationWarning(false);
+    }
   };
 
   return (
     <>
+      {showViolationWarning && callStatus === CallStatus.ACTIVE && (
+        <div className="w-full mb-4 bg-red-600 text-white px-6 py-4 rounded-lg text-center font-bold text-lg animate-pulse">
+          ⚠️ MULTIPLE PEOPLE DETECTED - VIOLATION!
+        </div>
+      )}
+
       <div className="call-view">
         {/* AI Interviewer Card */}
         <div className="card-interviewer">
@@ -167,19 +247,12 @@ const Agent = ({
           <h3>AI Interviewer</h3>
         </div>
 
-        {/* User Profile Card */}
-        <div className="card-border">
-          <div className="card-content">
-            <Image
-              src="/user-avatar.png"
-              alt="profile-image"
-              width={539}
-              height={539}
-              className="rounded-full object-cover size-[120px]"
-            />
-            <h3>{userName}</h3>
-          </div>
-        </div>
+        {/* Camera View */}
+        <CameraView
+          isActive={isCameraActive}
+          enableFaceDetection={callStatus === CallStatus.ACTIVE}
+          onFaceCountChange={handleFaceCountChange}
+        />
       </div>
 
       {messages.length > 0 && (
@@ -195,12 +268,48 @@ const Agent = ({
               {lastMessage}
             </p>
           </div>
+
+          {callStatus === CallStatus.ACTIVE && (
+            <div className="mt-4 flex items-center justify-between px-4 py-2 bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-400">Face Detection:</span>
+                <span
+                  className={cn(
+                    "text-sm font-semibold",
+                    faceCount === 1
+                      ? "text-green-500"
+                      : faceCount > 1
+                      ? "text-red-500"
+                      : "text-yellow-500"
+                  )}
+                >
+                  {faceCount === 0
+                    ? "No face detected"
+                    : faceCount === 1
+                    ? "✓ 1 person"
+                    : `⚠️ ${faceCount} people`}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center gap-4">
+        <CameraButton
+          isActive={isCameraActive}
+          onClick={toggleCamera}
+          disabled={callStatus === CallStatus.ACTIVE}
+        />
+
         {callStatus !== "ACTIVE" ? (
-          <button className="relative btn-call" onClick={() => handleCall()}>
+          <button
+            className={cn(
+              "relative btn-call",
+              !isCameraActive && "opacity-50 cursor-not-allowed"
+            )}
+            onClick={() => handleCall()}
+          >
             <span
               className={cn(
                 "absolute animate-ping rounded-full opacity-75",
