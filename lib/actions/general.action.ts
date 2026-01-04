@@ -46,7 +46,7 @@ export async function getInterviewsById(id: string): Promise<Interview | null> {
 }
 
 export async function createFeedback(params: CreateFeedbackParams) {
-  const { interviewId, userId, transcript } = params;
+  const { interviewId, userId, transcript, hasViolation = false } = params;
 
   try {
     const formattedTranscript = transcript
@@ -117,7 +117,8 @@ Return the following structured data ONLY:
         "You are a professional interviewer analyzing a mock interview. You are also trained to detect plagiarism, AI-generated answers, and interview cheating.",
     });
 
-    const feedback = await db.collection("feedback").add({
+    // Create or update feedback with violation flag
+    const feedbackData = {
       interviewId,
       userId,
       totalScore,
@@ -126,8 +127,11 @@ Return the following structured data ONLY:
       strengths,
       areasForImprovement,
       finalAssessment,
+      hasViolation, // NEW: Store violation status
       createdAt: new Date().toISOString(),
-    });
+    };
+
+    const feedback = await db.collection("feedback").add(feedbackData);
 
     return {
       success: true,
@@ -148,6 +152,7 @@ export async function getFeedbackByInterviewId(
     .collection("feedback")
     .where("interviewId", "==", interviewId)
     .where("userId", "==", userId)
+    .orderBy("createdAt", "desc") // Get the most recent feedback
     .limit(1)
     .get();
 

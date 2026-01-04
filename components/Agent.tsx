@@ -41,6 +41,10 @@ const Agent = ({
   const [faceCount, setFaceCount] = useState(0);
   const [showViolationWarning, setShowViolationWarning] = useState(false);
 
+  // NEW: Track violations during the interview
+  const [hasViolation, setHasViolation] = useState(false);
+  const violationCountRef = useRef(0);
+
   // Refs for violation timers
   const violationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastToastTimeRef = useRef<number>(0);
@@ -48,6 +52,9 @@ const Agent = ({
   useEffect(() => {
     const onCallStart = () => {
       setCallStatus(CallStatus.ACTIVE);
+      // Reset violation tracking for new interview
+      setHasViolation(false);
+      violationCountRef.current = 0;
     };
 
     const onCallEnd = () => {
@@ -105,6 +112,7 @@ const Agent = ({
         userId: userId!,
         transcript: messages,
         feedbackId,
+        hasViolation, // NEW: Pass violation status
       });
 
       if (success && id) {
@@ -122,7 +130,16 @@ const Agent = ({
         handleGenerateFeedback(messages);
       }
     }
-  }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
+  }, [
+    messages,
+    callStatus,
+    feedbackId,
+    interviewId,
+    router,
+    type,
+    userId,
+    hasViolation,
+  ]);
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -193,22 +210,37 @@ const Agent = ({
       return;
     }
 
-    // Check if there's a violation
-    const hasViolation = count > 1 || count === 0;
+    // Check if there's a violation (multiple people detected)
+    const hasMultiplePeople = count > 1;
 
-    if (hasViolation) {
+    if (hasMultiplePeople) {
+      // Mark that a violation occurred during this interview
+      if (!hasViolation) {
+        setHasViolation(true);
+        violationCountRef.current++;
+      }
+
       // If no timer is running, start one
       if (!violationTimerRef.current) {
         violationTimerRef.current = setTimeout(() => {
           // Only show toast if enough time has passed since last toast (prevent spam)
           const now = Date.now();
           if (now - lastToastTimeRef.current > 3000) {
-            if (count > 1) {
-              toast.error(`⚠️ Multiple people detected! (${count} people)`);
-              setShowViolationWarning(true);
-            } else if (count === 0) {
-              toast.warning("⚠️ No face detected in frame");
-            }
+            toast.error(
+              `⚠️ Multiple people detected! (${count} people) - VIOLATION RECORDED`
+            );
+            setShowViolationWarning(true);
+            lastToastTimeRef.current = now;
+          }
+        }, 500);
+      }
+    } else if (count === 0) {
+      // No face detected - show warning but don't count as violation
+      if (!violationTimerRef.current) {
+        violationTimerRef.current = setTimeout(() => {
+          const now = Date.now();
+          if (now - lastToastTimeRef.current > 3000) {
+            toast.warning("⚠️ No face detected in frame");
             lastToastTimeRef.current = now;
           }
         }, 500);
@@ -227,7 +259,7 @@ const Agent = ({
     <>
       {showViolationWarning && callStatus === CallStatus.ACTIVE && (
         <div className="w-full mb-4 bg-red-600 text-white px-6 py-4 rounded-lg text-center font-bold text-lg animate-pulse">
-          ⚠️ MULTIPLE PEOPLE DETECTED - VIOLATION!
+          ⚠️ MULTIPLE PEOPLE DETECTED - VIOLATION RECORDED!
         </div>
       )}
 
@@ -290,6 +322,11 @@ const Agent = ({
                     : `⚠️ ${faceCount} people`}
                 </span>
               </div>
+              {hasViolation && (
+                <span className="text-xs text-red-400 font-semibold">
+                  VIOLATION RECORDED
+                </span>
+              )}
             </div>
           )}
         </div>

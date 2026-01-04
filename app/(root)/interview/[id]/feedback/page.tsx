@@ -22,7 +22,8 @@ const Feedback = async ({ params }: RouteParams) => {
     userId: user?.id,
   });
 
- const plagiarismScore = feedback?.plagiarismScore;
+  const plagiarismScore = feedback?.plagiarismScore;
+  const hasViolation = feedback?.hasViolation || false;
 
   return (
     <section className="section-feedback">
@@ -48,7 +49,6 @@ const Feedback = async ({ params }: RouteParams) => {
           </div>
 
           <div className="flex flex-row gap-2 items-center">
-            {/* <Image src="/warning.svg" width={22} height={22} alt="plagiarism" /> */}
             <p>
               Plagiarism :{" "}
               <span
@@ -78,6 +78,19 @@ const Feedback = async ({ params }: RouteParams) => {
           </div>
         </div>
       </div>
+
+      {/* NEW: Violation Warning Banner */}
+      {hasViolation && (
+        <div className="w-full bg-red-600 text-white px-6 py-4 rounded-lg flex items-center gap-3">
+          <div className="flex-1">
+            <p className="font-bold text-lg">⚠️ VIOLATION DETECTED</p>
+            <p className="text-sm mt-1">
+              Multiple people were detected during this interview session. This
+              is considered a violation of interview integrity guidelines.
+            </p>
+          </div>
+        </div>
+      )}
 
       <hr />
 
@@ -114,6 +127,18 @@ const Feedback = async ({ params }: RouteParams) => {
         </ul>
       </div>
 
+      {/* NEW: Additional note for violations */}
+      {hasViolation && (
+        <div className="bg-yellow-900/30 border border-yellow-600 text-yellow-200 px-6 py-4 rounded-lg">
+          <p className="font-semibold mb-2">📝 Note for Reviewers:</p>
+          <p className="text-sm">
+            This interview session had integrity violations. The candidate can
+            retake the interview to clear this violation record. A clean retake
+            will automatically remove this violation flag from their feedback.
+          </p>
+        </div>
+      )}
+
       <div className="buttons">
         <Button className="btn-secondary flex-1">
           <Link href="/" className="flex w-full justify-center">
@@ -129,7 +154,9 @@ const Feedback = async ({ params }: RouteParams) => {
             className="flex w-full justify-center"
           >
             <p className="text-sm font-semibold text-black text-center">
-              Retake Interview
+              {hasViolation
+                ? "Retake Interview (Clear Violation)"
+                : "Retake Interview"}
             </p>
           </Link>
         </Button>

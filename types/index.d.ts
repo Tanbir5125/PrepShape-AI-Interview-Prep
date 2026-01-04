@@ -1,6 +1,15 @@
+interface CreateFeedbackParams {
+  interviewId: string;
+  userId: string;
+  transcript: Array<{ role: string; content: string }>;
+  feedbackId?: string;
+  hasViolation?: boolean; // NEW: Optional violation flag
+}
+
 interface Feedback {
   id: string;
   interviewId: string;
+  userId: string;
   totalScore: number;
   plagiarismScore: number;
   categoryScores: Array<{
@@ -11,7 +20,17 @@ interface Feedback {
   strengths: string[];
   areasForImprovement: string[];
   finalAssessment: string;
+  hasViolation?: boolean; // NEW: Violation flag in feedback
   createdAt: string;
+}
+
+interface AgentProps {
+  userName: string;
+  userId: string;
+  interviewId: string;
+  feedbackId?: string;
+  type: "generate" | "interview";
+  questions?: string[];
 }
 
 interface Interview {
