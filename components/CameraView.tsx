@@ -78,7 +78,7 @@ const CameraView = ({
 
   return (
     <div className="card-border">
-      <div className="card-content !p-0 overflow-hidden relative">
+      <div className="card-content p-0 overflow-hidden relative">
         <video
           ref={videoRef}
           autoPlay
