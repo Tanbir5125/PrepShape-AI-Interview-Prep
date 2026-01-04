@@ -41,6 +41,9 @@ const Agent = ({
   const [faceCount, setFaceCount] = useState(0);
   const [showViolationWarning, setShowViolationWarning] = useState(false);
 
+  // Check if this is interview generation mode
+  const isGenerateMode = type === "generate";
+
   // NEW: Track violations during the interview
   const [hasViolation, setHasViolation] = useState(false);
   const violationCountRef = useRef(0);
@@ -124,7 +127,7 @@ const Agent = ({
     };
 
     if (callStatus === CallStatus.FINISHED) {
-      if (type === "generate") {
+      if (isGenerateMode) {
         router.push("/");
       } else {
         handleGenerateFeedback(messages);
@@ -136,7 +139,7 @@ const Agent = ({
     feedbackId,
     interviewId,
     router,
-    type,
+    isGenerateMode,
     userId,
     hasViolation,
   ]);
@@ -151,14 +154,15 @@ const Agent = ({
   }, []);
 
   const handleCall = async () => {
-    if (!isCameraActive) {
+    // Only check camera requirement if NOT in generate mode
+    if (!isGenerateMode && !isCameraActive) {
       toast.error("Start your camera first to take the interview");
       return;
     }
 
     setCallStatus(CallStatus.CONNECTING);
 
-    if (type === "generate") {
+    if (isGenerateMode) {
       await vapi.start(
         undefined,
         undefined,
@@ -205,8 +209,8 @@ const Agent = ({
   const handleFaceCountChange = (count: number) => {
     setFaceCount(count);
 
-    // Only process violations during active call
-    if (callStatus !== CallStatus.ACTIVE) {
+    // Only process violations during active call and NOT in generate mode
+    if (callStatus !== CallStatus.ACTIVE || isGenerateMode) {
       return;
     }
 
@@ -257,11 +261,13 @@ const Agent = ({
 
   return (
     <>
-      {showViolationWarning && callStatus === CallStatus.ACTIVE && (
-        <div className="w-full mb-4 bg-red-600 text-white px-6 py-4 rounded-lg text-center font-bold text-lg animate-pulse">
-          ⚠️ MULTIPLE PEOPLE DETECTED - VIOLATION RECORDED!
-        </div>
-      )}
+      {showViolationWarning &&
+        callStatus === CallStatus.ACTIVE &&
+        !isGenerateMode && (
+          <div className="w-full mb-4 bg-red-600 text-white px-6 py-4 rounded-lg text-center font-bold text-lg animate-pulse">
+            ⚠️ MULTIPLE PEOPLE DETECTED - VIOLATION RECORDED!
+          </div>
+        )}
 
       <div className="call-view">
         {/* AI Interviewer Card */}
@@ -279,12 +285,14 @@ const Agent = ({
           <h3>AI Interviewer</h3>
         </div>
 
-        {/* Camera View */}
-        <CameraView
-          isActive={isCameraActive}
-          enableFaceDetection={callStatus === CallStatus.ACTIVE}
-          onFaceCountChange={handleFaceCountChange}
-        />
+        {/* Camera View - Only show if NOT in generate mode */}
+        {!isGenerateMode && (
+          <CameraView
+            isActive={isCameraActive}
+            enableFaceDetection={callStatus === CallStatus.ACTIVE}
+            onFaceCountChange={handleFaceCountChange}
+          />
+        )}
       </div>
 
       {messages.length > 0 && (
@@ -301,7 +309,8 @@ const Agent = ({
             </p>
           </div>
 
-          {callStatus === CallStatus.ACTIVE && (
+          {/* Only show face detection status if NOT in generate mode */}
+          {callStatus === CallStatus.ACTIVE && !isGenerateMode && (
             <div className="mt-4 flex items-center justify-between px-4 py-2 bg-gray-800 rounded-lg">
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-400">Face Detection:</span>
@@ -333,17 +342,22 @@ const Agent = ({
       )}
 
       <div className="w-full flex justify-center gap-4">
-        <CameraButton
-          isActive={isCameraActive}
-          onClick={toggleCamera}
-          disabled={callStatus === CallStatus.ACTIVE}
-        />
+        {/* Only show camera button if NOT in generate mode */}
+        {!isGenerateMode && (
+          <CameraButton
+            isActive={isCameraActive}
+            onClick={toggleCamera}
+            disabled={callStatus === CallStatus.ACTIVE}
+          />
+        )}
 
         {callStatus !== "ACTIVE" ? (
           <button
             className={cn(
               "relative btn-call",
-              !isCameraActive && "opacity-50 cursor-not-allowed"
+              !isGenerateMode &&
+                !isCameraActive &&
+                "opacity-50 cursor-not-allowed"
             )}
             onClick={() => handleCall()}
           >
